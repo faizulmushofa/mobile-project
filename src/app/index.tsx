@@ -22,7 +22,7 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#f8f9ff" />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
 
       {/* Ambient background decoration */}
       <View style={styles.ambientTopLeft} />

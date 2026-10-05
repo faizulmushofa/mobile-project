@@ -18,7 +18,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function RegisterScreen() {
   const [fullName, setFullName] = useState('');
   const [waPhone, setWaPhone] = useState('');
-  const [role, setRole] = useState<'petani' | 'prosesor'>('petani');
   const [location, setLocation] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
