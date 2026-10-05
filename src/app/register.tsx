@@ -48,11 +48,6 @@ export default function RegisterScreen() {
               accessibilityLabel="Kembali ke halaman masuk">
               <MaterialIcons name="arrow-back" size={22} color="#121c2a" />
             </TouchableOpacity>
-
-            <View style={styles.statusBadge}>
-              <View style={styles.pulseDot} />
-              <Text style={styles.statusBadgeText}>Registrasi Mandiri</Text>
-            </View>
           </View>
 
           {/* Brand Intro & Header */}
@@ -72,7 +67,7 @@ export default function RegisterScreen() {
 
             <Text style={styles.pageTitle}>Daftar Akun Baru</Text>
             <Text style={styles.pageSubtitle}>
-              Mulai catat jejak dan sertifikasi batch kopi kebun Anda dengan standar audit presisi.
+              Mulai catat kebun kopi Setiap langkah, buktikan kualitas kopimu. .
             </Text>
           </View>
 
@@ -90,7 +85,7 @@ export default function RegisterScreen() {
                 />
                 <TextInput
                   style={styles.textInput}
-                  placeholder="Bambang Sudrajat"
+                  placeholder="Anon"
                   placeholderTextColor="#737686"
                   value={fullName}
                   onChangeText={setFullName}
@@ -100,7 +95,7 @@ export default function RegisterScreen() {
 
             {/* Field 2: Nomor WhatsApp / HP */}
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Nomor WhatsApp / HP</Text>
+              <Text style={styles.inputLabel}>Nomor Telepon</Text>
               <View style={styles.inputContainer}>
                 <MaterialIcons
                   name="smartphone"
@@ -110,72 +105,18 @@ export default function RegisterScreen() {
                 />
                 <TextInput
                   style={styles.textInput}
-                  placeholder="0812-3456-7890"
+                  placeholder="08123456789"
                   placeholderTextColor="#737686"
                   value={waPhone}
                   onChangeText={setWaPhone}
                   keyboardType="phone-pad"
                 />
               </View>
-              <View style={styles.inputHelperRow}>
-                <MaterialIcons name="verified-user" size={14} color="#007d55" />
-                <Text style={styles.inputHelperText}>
-                  Kode OTP verifikasi akan dikirim ke WhatsApp
-                </Text>
-              </View>
-            </View>
-
-            {/* Field 3: Pilihan Peran (Role Selector) */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Peran / Tipe Usaha</Text>
-              <View style={styles.roleSelectorContainer}>
-                <TouchableOpacity
-                  style={[
-                    styles.roleButton,
-                    role === 'petani' && styles.roleButtonActive,
-                  ]}
-                  onPress={() => setRole('petani')}
-                  activeOpacity={0.8}>
-                  <MaterialIcons
-                    name="agriculture"
-                    size={18}
-                    color={role === 'petani' ? '#004ac6' : '#555f70'}
-                  />
-                  <Text
-                    style={[
-                      styles.roleButtonText,
-                      role === 'petani' && styles.roleButtonTextActive,
-                    ]}>
-                    Petani Kebun
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[
-                    styles.roleButton,
-                    role === 'prosesor' && styles.roleButtonActive,
-                  ]}
-                  onPress={() => setRole('prosesor')}
-                  activeOpacity={0.8}>
-                  <MaterialIcons
-                    name="factory"
-                    size={18}
-                    color={role === 'prosesor' ? '#004ac6' : '#555f70'}
-                  />
-                  <Text
-                    style={[
-                      styles.roleButtonText,
-                      role === 'prosesor' && styles.roleButtonTextActive,
-                    ]}>
-                    Prosesor / Roaster
-                  </Text>
-                </TouchableOpacity>
-              </View>
             </View>
 
             {/* Field 4: Asal Wilayah / Kebun */}
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Asal Wilayah / Kebun</Text>
+              <Text style={styles.inputLabel}>Asal Wilayah</Text>
               <View style={styles.inputContainer}>
                 <MaterialIcons
                   name="location-on"
@@ -185,7 +126,7 @@ export default function RegisterScreen() {
                 />
                 <TextInput
                   style={styles.textInput}
-                  placeholder="Dampit, Malang, Jawa Timur"
+                  placeholder="lokasi..."
                   placeholderTextColor="#737686"
                   value={location}
                   onChangeText={setLocation}

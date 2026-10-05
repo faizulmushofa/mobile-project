@@ -119,22 +119,6 @@ export default function LoginScreen() {
               <Text style={styles.primaryButtonText}>Masuk</Text>
               <MaterialIcons name="arrow-forward" size={20} color="#ffffff" />
             </TouchableOpacity>
-
-            {/* Divider */}
-            <View style={styles.dividerContainer}>
-              <View style={styles.dividerLine} />
-              <View style={styles.dividerBadge}>
-                <Text style={styles.dividerText}>ATAU</Text>
-              </View>
-            </View>
-
-            {/* Secondary Action: WhatsApp OTP */}
-            <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85}>
-              <MaterialIcons name="chat" size={20} color="#007d55" />
-              <Text style={styles.secondaryButtonText}>
-                Masuk dengan Kode OTP WhatsApp
-              </Text>
-            </TouchableOpacity>
           </View>
 
           {/* Footer Assistance */}
