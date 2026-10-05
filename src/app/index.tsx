@@ -115,7 +115,10 @@ export default function LoginScreen() {
             </View>
 
             {/* Primary Action CTA */}
-            <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              activeOpacity={0.85}
+              onPress={() => router.push('/home')}>
               <Text style={styles.primaryButtonText}>Masuk</Text>
               <MaterialIcons name="arrow-forward" size={20} color="#ffffff" />
             </TouchableOpacity>
