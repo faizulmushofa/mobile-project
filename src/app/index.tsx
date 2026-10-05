@@ -1,9 +1,12 @@
+import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles/login.styles';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -19,6 +22,25 @@ export default function LoginScreen() {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const { login, loading } = useAuth();
+
+  const handleLoginSubmit = async () => {
+    if (!identifier.trim()) {
+      Alert.alert('Perhatian', 'Silakan masukkan email Anda.');
+      return;
+    }
+    if (!password) {
+      Alert.alert('Perhatian', 'Silakan masukkan kata sandi.');
+      return;
+    }
+
+    const res = await login(identifier, password);
+    if (res.success) {
+      router.replace('/home');
+    } else {
+      Alert.alert('Gagal Masuk', res.message || 'Email atau kata sandi tidak cocok.');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -82,7 +104,13 @@ export default function LoginScreen() {
             <View style={styles.inputGroup}>
               <View style={styles.labelRow}>
                 <Text style={styles.inputLabel}>Kata Sandi</Text>
-                <TouchableOpacity activeOpacity={0.7}>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() =>
+                    Alert.alert(
+                      'Akun Uji Coba (Dummy)'
+                    )
+                  }>
                   <Text style={styles.forgotPasswordText}>Lupa kata sandi?</Text>
                 </TouchableOpacity>
               </View>
@@ -116,11 +144,18 @@ export default function LoginScreen() {
 
             {/* Primary Action CTA */}
             <TouchableOpacity
-              style={styles.primaryButton}
+              style={[styles.primaryButton, loading && { opacity: 0.7 }]}
               activeOpacity={0.85}
-              onPress={() => router.push('/home')}>
-              <Text style={styles.primaryButtonText}>Masuk</Text>
-              <MaterialIcons name="arrow-forward" size={20} color="#ffffff" />
+              disabled={loading}
+              onPress={handleLoginSubmit}>
+              {loading ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <>
+                  <Text style={styles.primaryButtonText}>Masuk</Text>
+                  <MaterialIcons name="arrow-forward" size={20} color="#ffffff" />
+                </>
+              )}
             </TouchableOpacity>
           </View>
 
