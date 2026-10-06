@@ -1,9 +1,12 @@
+import { useAuth } from '@/hooks/use-auth';
 import { styles } from '@/styles/register.styles';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -17,11 +20,56 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RegisterScreen() {
   const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
   const [waPhone, setWaPhone] = useState('');
   const [location, setLocation] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const { register, loading } = useAuth();
+
+  const handleRegisterSubmit = async () => {
+    if (!fullName.trim()) {
+      Alert.alert('Perhatian', 'Nama lengkap wajib diisi.');
+      return;
+    }
+    if (!email.trim()) {
+      Alert.alert('Perhatian', 'Email wajib diisi.');
+      return;
+    }
+    if (!email.includes('@') || !email.includes('.')) {
+      Alert.alert('Perhatian', 'Format email tidak valid.');
+      return;
+    }
+    if (!password || password.length < 8) {
+      Alert.alert('Perhatian', 'Kata sandi minimal 8 karakter.');
+      return;
+    }
+    if (!agreeTerms) {
+      Alert.alert('Perhatian', 'Harap setujui Syarat & Ketentuan serta Kebijakan Privasi.');
+      return;
+    }
+
+    const res = await register(fullName, email, password, {
+      phone: waPhone,
+      location,
+    });
+
+    if (res.success) {
+      Alert.alert(
+        'Pendaftaran Berhasil',
+        `Akun ${fullName} (${email}) berhasil didaftarkan ke data dummy! Silakan masuk dengan akun ini.`,
+        [
+          {
+            text: 'Masuk Sekarang',
+            onPress: () => router.replace('/'),
+          },
+        ]
+      );
+    } else {
+      Alert.alert('Gagal Mendaftar', res.message || 'Terjadi kesalahan saat pendaftaran.');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -88,6 +136,28 @@ export default function RegisterScreen() {
                   placeholderTextColor="#737686"
                   value={fullName}
                   onChangeText={setFullName}
+                />
+              </View>
+            </View>
+
+            {/* Field 2: Email */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Email</Text>
+              <View style={styles.inputContainer}>
+                <MaterialIcons
+                  name="alternate-email"
+                  size={20}
+                  color="#555f70"
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="contoh@gmail.com"
+                  placeholderTextColor="#737686"
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
                 />
               </View>
             </View>
@@ -186,9 +256,19 @@ export default function RegisterScreen() {
             </TouchableOpacity>
 
             {/* Submit Action Button */}
-            <TouchableOpacity style={styles.submitButton} activeOpacity={0.85}>
-              <Text style={styles.submitButtonText}>Daftar Sekarang</Text>
-              <MaterialIcons name="arrow-forward" size={18} color="#ffffff" />
+            <TouchableOpacity
+              style={[styles.submitButton, loading && { opacity: 0.7 }]}
+              activeOpacity={0.85}
+              disabled={loading}
+              onPress={handleRegisterSubmit}>
+              {loading ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <>
+                  <Text style={styles.submitButtonText}>Daftar Sekarang</Text>
+                  <MaterialIcons name="arrow-forward" size={18} color="#ffffff" />
+                </>
+              )}
             </TouchableOpacity>
           </View>
 
