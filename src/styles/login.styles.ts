@@ -1,4 +1,16 @@
 import { StyleSheet } from 'react-native';
+// justifyContent → VERTIKAL
+// 'flex-start'    → elemen ke awal
+// 'center'        → elemen ke tengah
+// 'flex-end'      → elemen ke akhir
+// 'space-between' → jarak antar elemen, tanpa jarak di ujung
+// 'space-around'  → jarak di sekitar setiap elemen
+// 'space-evenly'  → semua jarak dibuat sama
+// alignItems     → HORIZONTAL
+// 'flex-start' → elemen ke kiri   (column)
+// 'center'     → elemen ke tengah
+// 'flex-end'   → elemen ke kanan
+// 'stretch'    → elemen diregangkan memenuhi cross axis
 
 export const styles = StyleSheet.create({
   container: {
