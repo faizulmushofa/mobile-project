@@ -1,98 +1,177 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
+import { useAuth } from '@/hooks/use-auth';
+import { styles } from '@/styles/login.styles';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import { router } from 'expo-router';
+import { useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StatusBar,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+export default function LoginScreen() {
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const { login, loading } = useAuth();
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+  const handleLoginSubmit = async () => {
+    if (!identifier.trim()) {
+      Alert.alert('Perhatian', 'Silakan masukkan email Anda.');
+      return;
+    }
+    if (!password) {
+      Alert.alert('Perhatian', 'Silakan masukkan kata sandi.');
+      return;
+    }
+
+    const res = await login(identifier, password);
+    if (res.success) {
+      router.replace('/home');
+    } else {
+      Alert.alert('Gagal Masuk', res.message || 'Email atau kata sandi tidak cocok.');
+    }
+  };
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+
+      {/* Ambient background decoration */}
+      <View style={styles.ambientTopLeft} />
+      <View style={styles.ambientTopRight} />
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.keyboardView}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled">
+
+          {/* Header & Brand Identity */}
+          <View style={styles.headerSection}>
+            <View style={styles.logoBadgeContainer}>
+              <Image
+                source={{
+                  uri: 'https://lh3.googleusercontent.com/aida/AEtjO1XAd8LPuZrQAOeStTs9BbiwPEsamLbNPuWwSuWch95Gv1G0QoSxeerTyXmjyvLeywB4XWjQ92sD55XsrkdZ_nsQrvA-jTCwDF5kzvDfgsFDAszDfDmK-xSq5fi-Wn6dujGJrWR98Alr7nPK6xN5q6VS2xP--iDlMnE1h4e8yOYA0iX3_DE5jIuW2gWfUygNfvnuxt_fbk_9y_N-XWKk9TN1B4EQYnI86Uesiueo0vpC0PyzSEcn4qjIzy8',
+                }}
+                style={styles.logoImage}
+                contentFit="contain"
+              />
+            </View>
+
+            <Text style={styles.brandTitle}>Jejak Kopi</Text>
+            <Text style={styles.brandSlogan}>
+              Catat setiap langkah, buktikan kualitas kopimu.
+            </Text>
+          </View>
+
+          {/* Primary Login Card */}
+          <View style={styles.card}>
+            {/* Field 1: Email / Nomor HP */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Email</Text>
+              <View style={styles.inputContainer}>
+                <MaterialIcons
+                  name="alternate-email"
+                  size={20}
+                  color="#555f70"
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="example@gmail.com"
+                  placeholderTextColor="#737686"
+                  value={identifier}
+                  onChangeText={setIdentifier}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                />
+              </View>
+            </View>
+
+            {/* Field 2: Password */}
+            <View style={styles.inputGroup}>
+              <View style={styles.labelRow}>
+                <Text style={styles.inputLabel}>Kata Sandi</Text>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() =>
+                    Alert.alert(
+                      'Akun Uji Coba (Dummy)'
+                    )
+                  }>
+                  <Text style={styles.forgotPasswordText}>Lupa kata sandi?</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.inputContainer}>
+                <MaterialIcons
+                  name="lock-outline"
+                  size={20}
+                  color="#555f70"
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={[styles.textInput, styles.passwordInput]}
+                  placeholder="••••••••••••"
+                  placeholderTextColor="#737686"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity
+                  style={styles.eyeButton}
+                  onPress={() => setShowPassword(!showPassword)}
+                  activeOpacity={0.7}>
+                  <MaterialIcons
+                    name={showPassword ? 'visibility' : 'visibility-off'}
+                    size={20}
+                    color="#555f70"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Primary Action CTA */}
+            <TouchableOpacity
+              style={[styles.primaryButton, loading && { opacity: 0.7 }]}
+              activeOpacity={0.85}
+              disabled={loading}
+              onPress={handleLoginSubmit}>
+              {loading ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <>
+                  <Text style={styles.primaryButtonText}>Masuk</Text>
+                  <MaterialIcons name="arrow-forward" size={20} color="#ffffff" />
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {/* Footer Assistance */}
+          <View style={styles.footerSection}>
+            <Text style={styles.footerText}>
+              Belum punya akun?{' '}
+              <Text
+                style={styles.adminLink}
+                onPress={() => router.push('/register')}>
+                Daftar sekarang
+              </Text>
+            </Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
-
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
-});

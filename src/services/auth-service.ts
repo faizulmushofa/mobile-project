@@ -1,28 +1,19 @@
-import * as SecureStore from 'expo-secure-store';
-import {apiFetch} from './api-service';
-import { users} from '../dummy-data/user-data'
+import { User, users } from '../dummy-data/user-data';
 
 // export const login = async (
 //     email: string,
 //     password: string
 // ) => {
-
 //     const result = await apiFetch('/api/login', {
 //         method: 'POST',
-
 //         body: JSON.stringify({
 //             email,
 //             password,
 //         }),
 //     });
-
 //     if (result.data?.token) {
-//         await SecureStore.setItemAsync(
-//             'auth_token',
-//             result.data.token
-//         );
+//         await SecureStore.setItemAsync('auth_token', result.data.token);
 //     }
-
 //     return result;
 // };
 
@@ -30,63 +21,76 @@ export const login = async (
     email: string,
     password: string,
 ) => {
-    
-    let user = null;
-    
-    users.forEach( user => {
-        if(user.email == email && user.password == password) {
-            user = user;
-        }
-    });
+    const trimmedEmail = email.trim().toLowerCase();
+    let foundUser: User | null = null;
 
-    if (!user) {
-        return {
-            message : 'Data User Tidak Ditemukan'
+    for (let i = 0; i < users.length; i++) {
+        const item = users[i];
+        if (
+            item.email.toLowerCase() === trimmedEmail &&
+            item.password === password
+        ) {
+            foundUser = item;
+            break;
         }
     }
+
+    if (!foundUser) {
+        return {
+            success: false,
+            message: 'Email atau kata sandi tidak sesuai',
+        };
+    }
+
     return {
-        message : "success",
-        datetime : new Date(),
-        path : "api/login",
-        data : user,
-        token : Math.floor(Math.random() * 10000)
+        success: true,
+        message: 'Berhasil masuk',
+        datetime: new Date(),
+        path: 'api/login',
+        data: foundUser,
+        token: Math.floor(Math.random() * 10000).toString(),
     };
+};
 
-}
+export const register = async (
+    name: string,
+    email: string,
+    password: string,
+    extra?: { phone?: string; location?: string }
+) => {
+    const trimmedEmail = email.trim().toLowerCase();
 
-// export const register = async (name: string, email: string, password: string) => {
-//     return apiFetch('/api/register', {
-//         method: 'POST',
-
-//         body: JSON.stringify({
-//             name,
-//             email,
-//             password,
-//         }),
-//     });
-// };
-
-export const register = async (name: string, email: string, password: string) => {
-
-    if (users.find(user => user.email === email)) {
-        return {
-            message : 'Email Sudah Terdaftar'
+    let emailExists = false;
+    for (let i = 0; i < users.length; i++) {
+        if (users[i].email.toLowerCase() === trimmedEmail) {
+            emailExists = true;
+            break;
         }
     }
 
-    const newUser = {
-        name : name,
-        email : email,
-        password : password
+    if (emailExists) {
+        return {
+            success: false,
+            message: 'Email sudah terdaftar',
+        };
     }
+
+    const newUser: User = {
+        id: users.length + 1,
+        name: name.trim(),
+        email: trimmedEmail,
+        password,
+        phone: extra?.phone?.trim() || '-',
+        location: extra?.location?.trim() || '-',
+    };
 
     users.push(newUser);
 
     return {
-        message : "success",
-        datetime : new Date(),
-        path : "api/register",
-        data : newUser
-    }
-}
-    
+        success: true,
+        message: 'Registrasi berhasil',
+        datetime: new Date(),
+        path: 'api/register',
+        data: newUser,
+    };
+};
