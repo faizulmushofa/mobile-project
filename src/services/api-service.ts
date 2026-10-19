@@ -22,5 +22,12 @@ export const apiFetch = async (
         },
     });
 
-    return await response.json();
+    const result = await response.json();
+
+    if (!response.ok) {
+        const message = result.message || Object.values(result.errors || {}).flat().join(' ') || 'Request gagal.';
+        throw new Error(message);
+    }
+
+    return result;
 };

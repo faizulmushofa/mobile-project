@@ -8,6 +8,8 @@ export const useAuth = () => {
         setLoading(true);
         try {
             return await login(email, password);
+        } catch (error) {
+            return { success: false, message: error instanceof Error ? error.message : 'Gagal masuk.' };
         } finally {
             setLoading(false);
         }
@@ -21,7 +23,10 @@ export const useAuth = () => {
     ) => {
         setLoading(true);
         try {
-            return await register(name, email, password, extra);
+            const result = await register(name, email, password, extra);
+            return { ...result, success: true };
+        } catch (error) {
+            return { success: false, message: error instanceof Error ? error.message : 'Gagal mendaftar.' };
         } finally {
             setLoading(false);
         }

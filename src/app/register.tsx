@@ -58,11 +58,11 @@ export default function RegisterScreen() {
     if (res.success) {
       Alert.alert(
         'Pendaftaran Berhasil',
-        `Akun ${fullName} (${email}) berhasil didaftarkan ke data dummy! Silakan masuk dengan akun ini.`,
+        `Akun ${fullName} (${email}) berhasil didaftarkan. Silakan masuk dengan akun ini.`,
         [
           {
             text: 'Masuk Sekarang',
-            onPress: () => router.replace('/'),
+            onPress: () => router.replace('/login'),
           },
         ]
       );
