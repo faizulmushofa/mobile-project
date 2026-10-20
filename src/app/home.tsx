@@ -1,21 +1,36 @@
-import { styles } from '@/styles/home.styles';
-import { MaterialIcons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
-import { router } from 'expo-router';
-import { useState } from 'react';
-import {
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from "@/hooks/use-auth";
+import { styles } from "@/styles/home.styles";
+import { MaterialIcons } from "@expo/vector-icons";
+import { Image } from "expo-image";
+import { router } from "expo-router";
+import { useState } from "react";
+import { Alert, StatusBar, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
-  const [activeTab, setActiveTab] = useState<'beranda' | 'batch' | 'pesanan' | 'profil'>('beranda');
+  const [activeTab, setActiveTab] = useState<
+    "beranda" | "batch" | "pesanan" | "profil"
+  >("beranda");
+  const { logout } = useAuth();
+  const handleLogout = () => {
+    Alert.alert("kofirmasi logout", "apakah anda yakin ingin keluar?", [
+      { text: "batal", style: "cancel" },
+      {
+        text: "keluar",
+        style: "destructive",
+        onPress: async () => {
+          if (logout) await logout();
+          if (router.canDismiss()) {
+            router.dismissAll();
+          }
+          router.replace("/");
+        },
+      },
+    ]);
+  };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
       {/* Top Header */}
@@ -23,7 +38,7 @@ export default function HomeScreen() {
         <View style={styles.headerLeft}>
           <Image
             source={{
-              uri: 'https://lh3.googleusercontent.com/aida/AEtjO1Xs4k7Jon22hj0ckqH30nqlbTUYsfm2wqSc9P-OafoOXtF_dvKtlocDQ-3kG2Ook43u99KsKt4IiGTB2ialb2euqHLt9gQ4O9ppxCTR1_-UGPND4Ww_Ly3BKOks8EBiTgVnLadMf3_CaHQ-1x10XExyMCQ4RXpVECi7F4JcJJRrcZlB3DqtHjj68rPqdR6akwimJRoKXzOXKFnBgafaEaj2zgRiYeqGaP7s5hXVVPmDrAY09ciB4XOB8eLa',
+              uri: "https://lh3.googleusercontent.com/aida/AEtjO1Xs4k7Jon22hj0ckqH30nqlbTUYsfm2wqSc9P-OafoOXtF_dvKtlocDQ-3kG2Ook43u99KsKt4IiGTB2ialb2euqHLt9gQ4O9ppxCTR1_-UGPND4Ww_Ly3BKOks8EBiTgVnLadMf3_CaHQ-1x10XExyMCQ4RXpVECi7F4JcJJRrcZlB3DqtHjj68rPqdR6akwimJRoKXzOXKFnBgafaEaj2zgRiYeqGaP7s5hXVVPmDrAY09ciB4XOB8eLa",
             }}
             style={styles.headerLogo}
             contentFit="contain"
@@ -37,7 +52,8 @@ export default function HomeScreen() {
         <TouchableOpacity
           style={styles.profileAvatar}
           activeOpacity={0.8}
-          onPress={() => router.replace('/')}>
+          onPress={() => router.replace("/")}
+        >
           <MaterialIcons name="person" size={20} color="#ffffff" />
         </TouchableOpacity>
       </View>
@@ -70,7 +86,8 @@ export default function HomeScreen() {
         <View style={styles.infoCard}>
           <MaterialIcons name="info" size={20} color="#2563eb" />
           <Text style={styles.infoCardText}>
-            Sistem pencatatan batch & penelusuran kopi tetap aktif melalui menu navigasi di bawah.
+            Sistem pencatatan batch & penelusuran kopi tetap aktif melalui menu
+            navigasi di bawah.
           </Text>
         </View>
 
@@ -85,36 +102,40 @@ export default function HomeScreen() {
       <View style={styles.bottomNav}>
         <TouchableOpacity
           style={styles.navItem}
-          onPress={() => setActiveTab('beranda')}
-          activeOpacity={0.7}>
+          onPress={() => setActiveTab("beranda")}
+          activeOpacity={0.7}
+        >
           <MaterialIcons
             name="home"
             size={24}
-            color={activeTab === 'beranda' ? '#2563eb' : '#434655'}
+            color={activeTab === "beranda" ? "#2563eb" : "#434655"}
           />
           <Text
             style={[
               styles.navLabel,
-              activeTab === 'beranda' && styles.navLabelActive,
-            ]}>
+              activeTab === "beranda" && styles.navLabelActive,
+            ]}
+          >
             Beranda
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.navItem}
-          onPress={() => setActiveTab('batch')}
-          activeOpacity={0.7}>
+          onPress={() => setActiveTab("batch")}
+          activeOpacity={0.7}
+        >
           <MaterialIcons
             name="inventory-2"
             size={24}
-            color={activeTab === 'batch' ? '#2563eb' : '#434655'}
+            color={activeTab === "batch" ? "#2563eb" : "#434655"}
           />
           <Text
             style={[
               styles.navLabel,
-              activeTab === 'batch' && styles.navLabelActive,
-            ]}>
+              activeTab === "batch" && styles.navLabelActive,
+            ]}
+          >
             Batch
           </Text>
         </TouchableOpacity>
@@ -128,36 +149,40 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           style={styles.navItem}
-          onPress={() => setActiveTab('pesanan')}
-          activeOpacity={0.7}>
+          onPress={() => setActiveTab("pesanan")}
+          activeOpacity={0.7}
+        >
           <MaterialIcons
             name="local-shipping"
             size={24}
-            color={activeTab === 'pesanan' ? '#2563eb' : '#434655'}
+            color={activeTab === "pesanan" ? "#2563eb" : "#434655"}
           />
           <Text
             style={[
               styles.navLabel,
-              activeTab === 'pesanan' && styles.navLabelActive,
-            ]}>
+              activeTab === "pesanan" && styles.navLabelActive,
+            ]}
+          >
             Pesanan
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.navItem}
-          onPress={() => setActiveTab('profil')}
-          activeOpacity={0.7}>
+          onPress={() => setActiveTab("profil")}
+          activeOpacity={0.7}
+        >
           <MaterialIcons
             name="account-circle"
             size={24}
-            color={activeTab === 'profil' ? '#2563eb' : '#434655'}
+            color={activeTab === "profil" ? "#2563eb" : "#434655"}
           />
           <Text
             style={[
               styles.navLabel,
-              activeTab === 'profil' && styles.navLabelActive,
-            ]}>
+              activeTab === "profil" && styles.navLabelActive,
+            ]}
+          >
             Profil
           </Text>
         </TouchableOpacity>

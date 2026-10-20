@@ -1,9 +1,9 @@
-import { useAuth } from '@/hooks/use-auth';
-import { styles } from '@/styles/login.styles';
-import { MaterialIcons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { useAuth } from "@/hooks/use-auth";
+import { styles } from "@/styles/login.styles";
+import { MaterialIcons } from "@expo/vector-icons";
+import { Image } from "expo-image";
+import { router } from "expo-router";
+import { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -15,59 +15,77 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LoginScreen() {
-  const [identifier, setIdentifier] = useState('');
-  const [password, setPassword] = useState('');
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { login, loading } = useAuth();
+  const [emailTouched, setEmailTouched] = useState(false);
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier.trim());
 
   const handleLoginSubmit = async () => {
-    if (!identifier.trim()) {
-      Alert.alert('Perhatian', 'Silakan masukkan email Anda.');
+    setEmailTouched(true);
+    if (!identifier.trim() || !emailValid) {
+      Alert.alert("Perhatian", emailError);
       return;
     }
     if (!password) {
-      Alert.alert('Perhatian', 'Silakan masukkan kata sandi.');
+      Alert.alert("Perhatian", "Silakan masukkan kata sandi.");
       return;
     }
 
     const res = await login(identifier, password);
     if (res.success) {
-      router.replace('/home');
+      router.replace("/home");
     } else {
-      Alert.alert('Gagal Masuk', res.message || 'Email atau kata sandi tidak cocok.');
+      Alert.alert(
+        "Gagal Masuk",
+        res.message || "Email atau kata sandi tidak cocok.",
+      );
     }
   };
 
+  const emailError =
+    identifier.trim() === ""
+      ? "Email wajib di isi"
+      : !emailValid
+        ? "format email tidak valid"
+        : "";
+
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="transparent"
+        translucent
+      />
 
       {/* Ambient background decoration */}
       <View style={styles.ambientTopLeft} />
       <View style={styles.ambientTopRight} />
 
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.keyboardView}>
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={styles.keyboardView}
+      >
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled">
-
+          keyboardShouldPersistTaps="handled"
+        >
           {/* Header & Brand Identity */}
           <View style={styles.headerSection}>
             <View style={styles.logoBadgeContainer}>
               <Image
                 source={{
-                  uri: 'https://lh3.googleusercontent.com/aida/AEtjO1XAd8LPuZrQAOeStTs9BbiwPEsamLbNPuWwSuWch95Gv1G0QoSxeerTyXmjyvLeywB4XWjQ92sD55XsrkdZ_nsQrvA-jTCwDF5kzvDfgsFDAszDfDmK-xSq5fi-Wn6dujGJrWR98Alr7nPK6xN5q6VS2xP--iDlMnE1h4e8yOYA0iX3_DE5jIuW2gWfUygNfvnuxt_fbk_9y_N-XWKk9TN1B4EQYnI86Uesiueo0vpC0PyzSEcn4qjIzy8',
+                  uri: "https://lh3.googleusercontent.com/aida/AEtjO1XAd8LPuZrQAOeStTs9BbiwPEsamLbNPuWwSuWch95Gv1G0QoSxeerTyXmjyvLeywB4XWjQ92sD55XsrkdZ_nsQrvA-jTCwDF5kzvDfgsFDAszDfDmK-xSq5fi-Wn6dujGJrWR98Alr7nPK6xN5q6VS2xP--iDlMnE1h4e8yOYA0iX3_DE5jIuW2gWfUygNfvnuxt_fbk_9y_N-XWKk9TN1B4EQYnI86Uesiueo0vpC0PyzSEcn4qjIzy8",
                 }}
                 style={styles.logoImage}
                 contentFit="contain"
-              />
+              ></Image>
             </View>
 
             <Text style={styles.brandTitle}>Jejak Kopi</Text>
@@ -75,7 +93,6 @@ export default function LoginScreen() {
               Catat setiap langkah, buktikan kualitas kopimu.
             </Text>
           </View>
-
           {/* Primary Login Card */}
           <View style={styles.card}>
             {/* Field 1: Email / Nomor HP */}
@@ -96,8 +113,12 @@ export default function LoginScreen() {
                   onChangeText={setIdentifier}
                   autoCapitalize="none"
                   keyboardType="email-address"
+                  autoCorrect={false}
                 />
               </View>
+              {emailTouched && emailError !== "" && (
+                <Text style={styles.errorText}> {emailError} </Text>
+              )}
             </View>
 
             {/* Field 2: Password */}
@@ -106,12 +127,11 @@ export default function LoginScreen() {
                 <Text style={styles.inputLabel}>Kata Sandi</Text>
                 <TouchableOpacity
                   activeOpacity={0.7}
-                  onPress={() =>
-                    Alert.alert(
-                      'Akun Uji Coba (Dummy)'
-                    )
-                  }>
-                  <Text style={styles.forgotPasswordText}>Lupa kata sandi?</Text>
+                  onPress={() => Alert.alert("Akun Uji Coba (Dummy)")}
+                >
+                  <Text style={styles.forgotPasswordText}>
+                    Lupa kata sandi?
+                  </Text>
                 </TouchableOpacity>
               </View>
               <View style={styles.inputContainer}>
@@ -127,16 +147,18 @@ export default function LoginScreen() {
                   placeholderTextColor="#737686"
                   value={password}
                   onChangeText={setPassword}
+                  autoCapitalize="none"
                   secureTextEntry={!showPassword}
                 />
                 <TouchableOpacity
                   style={styles.eyeButton}
                   onPress={() => setShowPassword(!showPassword)}
-                  activeOpacity={0.7}>
+                  activeOpacity={0.7}
+                >
                   <MaterialIcons
-                    name={showPassword ? 'visibility' : 'visibility-off'}
+                    name={showPassword ? "visibility" : "visibility-off"}
                     size={20}
-                    color="#555f70"
+                    color="#fe0000"
                   />
                 </TouchableOpacity>
               </View>
@@ -147,13 +169,18 @@ export default function LoginScreen() {
               style={[styles.primaryButton, loading && { opacity: 0.7 }]}
               activeOpacity={0.85}
               disabled={loading}
-              onPress={handleLoginSubmit}>
+              onPress={handleLoginSubmit}
+            >
               {loading ? (
                 <ActivityIndicator color="#ffffff" />
               ) : (
                 <>
                   <Text style={styles.primaryButtonText}>Masuk</Text>
-                  <MaterialIcons name="arrow-forward" size={20} color="#ffffff" />
+                  <MaterialIcons
+                    name="arrow-forward"
+                    size={20}
+                    color="#ffffff"
+                  />
                 </>
               )}
             </TouchableOpacity>
@@ -162,10 +189,11 @@ export default function LoginScreen() {
           {/* Footer Assistance */}
           <View style={styles.footerSection}>
             <Text style={styles.footerText}>
-              Belum punya akun?{' '}
+              Belum punya akun?{" "}
               <Text
                 style={styles.adminLink}
-                onPress={() => router.push('/register')}>
+                onPress={() => router.push("/register")}
+              >
                 Daftar sekarang
               </Text>
             </Text>
