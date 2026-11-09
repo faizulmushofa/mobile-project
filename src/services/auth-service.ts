@@ -94,3 +94,11 @@ export const register = async (
         data: newUser,
     };
 };
+
+export const logout = async () => {
+    return {
+        success: true,
+        message: 'Berhasil keluar',
+    };
+};
+

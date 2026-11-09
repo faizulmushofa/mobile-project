@@ -3,6 +3,7 @@ import { styles } from "@/styles/login.styles";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { router } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -10,7 +11,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StatusBar,
   Text,
   TextInput,
   TouchableOpacity,
@@ -57,11 +57,7 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor="transparent"
-        translucent
-      />
+      <StatusBar style="dark" />
 
       {/* Ambient background decoration */}
       <View style={styles.ambientTopLeft} />
@@ -158,7 +154,7 @@ export default function LoginScreen() {
                   <MaterialIcons
                     name={showPassword ? "visibility" : "visibility-off"}
                     size={20}
-                    color="#fe0000"
+                    color="#928f8fa5"
                   />
                 </TouchableOpacity>
               </View>
