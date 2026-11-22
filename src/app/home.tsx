@@ -121,16 +121,13 @@ export default function HomeScreen() {
       timestamp: timeFormatted,
     });
 
-    // Panggil Service API lokal yang mengembalikan Promise (resolve / reject)
     verifyBatchCode(codeToVerify)
       .then((batchData) => {
-        // Promise Terpenuhi (RESOLVE): Data asli ditemukan
         setVerifiedBatch(batchData);
         setVerificationError(null);
         setShowVerificationModal(true);
       })
       .catch((error: Error) => {
-        // Promise Ditolak (REJECT): Barcode tidak valid / palsu
         setVerifiedBatch(null);
         setVerificationError(
           error.message || "Kode barcode tidak terdaftar di sistem Jejak Kopi."
@@ -142,13 +139,11 @@ export default function HomeScreen() {
       });
   };
 
-  // Handler saat barcode berhasil terdeteksi dari kamera
   const handleBarcodeScanned = (result: BarcodeScanningResult) => {
     setScanned(true);
     setIsCameraOpen(false);
     setEnableTorch(false);
 
-    // Langsung jalankan proses verifikasi API Asynchronous
     handleRunVerification(result.data);
   };
 
