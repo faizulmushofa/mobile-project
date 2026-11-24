@@ -1,22 +1,5 @@
 import { User, users } from '../dummy-data/user-data';
 
-// export const login = async (
-//     email: string,
-//     password: string
-// ) => {
-//     const result = await apiFetch('/api/login', {
-//         method: 'POST',
-//         body: JSON.stringify({
-//             email,
-//             password,
-//         }),
-//     });
-//     if (result.data?.token) {
-//         await SecureStore.setItemAsync('auth_token', result.data.token);
-//     }
-//     return result;
-// };
-
 export const login = async (
     email: string,
     password: string,

@@ -1,52 +1,72 @@
-import { COFFEE_BATCHES } from '@/dummy-data/coffee-batches';
-import { CoffeeBatch } from '@/types/coffee';
-import { delay } from '@/utils/delay';
+import { supabase } from "@/lib/supabase";
+import { CoffeeBatch } from "@/types/coffee";
 
-/**
- * Service API Lokal untuk verifikasi Batch Kopi
- * Menerapkan materi Modul 3:
- * - Promise constructor: new Promise((resolve, reject) => { ... })
- * - resolve() saat data batch ditemukan dan valid
- * - reject() saat kode batch tidak ditemukan atau palsu
- * - delay() untuk mensimulasikan jeda waktu komunikasi API/database
- */
-export const verifyBatchCode = (scannedCode: string): Promise<CoffeeBatch> => {
-  return new Promise<CoffeeBatch>((resolve, reject) => {
-    // Simulasi latensi jaringan selama 1000ms
-    delay(1000).then(() => {
-      const cleanCode = scannedCode.trim().toUpperCase();
-      const foundBatch = COFFEE_BATCHES.find(
-        (item) => item.batchCode.toUpperCase() === cleanCode
-      );
+interface SupabaseBatchRow {
+  id: string;
+  batch_code: string;
+  coffee_name: string;
+  variety: string;
+  origin: string;
+  altitude: string;
+  farmer: string;
+  process_method: string;
+  roast_level: string;
+  roast_date: string;
+  flavor_notes: string[];
+  certification_number: string;
+  status: string;
+  qr_image_url: string;
+}
 
-      if (foundBatch) {
-        // Berhasil verifikasi: jalankan resolve dengan data batch kopi
-        resolve(foundBatch);
-      } else {
-        // Gagal verifikasi: jalankan reject dengan pesan error
-        reject(
-          new Error(
-            `Kode barcode "${scannedCode}" tidak terdaftar di database Jejak Kopi. Waspada produk kopi tiruan!`
-          )
-        );
-      }
-    });
-  });
+const mapRowToBatch = (row: SupabaseBatchRow): CoffeeBatch => ({
+  id: row.id,
+  batchCode: row.batch_code,
+  coffeeName: row.coffee_name,
+  variety: row.variety,
+  origin: row.origin,
+  altitude: row.altitude,
+  farmer: row.farmer,
+  processMethod: row.process_method,
+  roastLevel: row.roast_level,
+  roastDate: row.roast_date,
+  flavorNotes: row.flavor_notes,
+  certificationNumber: row.certification_number,
+  status: row.status as CoffeeBatch["status"],
+  qrImageUrl: row.qr_image_url,
+});
+
+export const verifyBatchCode = async (
+  scannedCode: string
+): Promise<CoffeeBatch> => {
+  const cleanCode = scannedCode.trim().toUpperCase();
+  const { data, error } = await supabase
+    .from("coffee_batches")
+    .select("*")
+    .ilike("batch_code", cleanCode)
+    .single();
+
+  if (error || !data) {
+    throw new Error(
+      `Kode barcode "${scannedCode}" tidak terdaftar di database Jejak Kopi. Waspada produk kopi tiruan!`
+    );
+  }
+
+  return mapRowToBatch(data as SupabaseBatchRow);
 };
 
-/**
- * Mengambil seluruh daftar batch kopi lokal
- * Menggunakan async function custom
- */
 export const fetchAllBatches = async (): Promise<CoffeeBatch[]> => {
-  await delay(600);
-  return COFFEE_BATCHES;
+  const { data, error } = await supabase
+    .from("coffee_batches")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error("Gagal memuat data batch kopi dari server.");
+  }
+
+  return (data as SupabaseBatchRow[]).map(mapRowToBatch);
 };
 
-/**
- * Helper verifikasi yang menggunakan pola .then() dan .catch()
- * sesuai materi Bab 1.4 Modul 3
- */
 export const verifyBatchWithThen = (
   scannedCode: string,
   onSuccess: (batch: CoffeeBatch) => void,
@@ -57,6 +77,6 @@ export const verifyBatchWithThen = (
       onSuccess(batch);
     })
     .catch((error: Error) => {
-      onError(error.message || 'Gagal memverifikasi batch');
+      onError(error.message || "Gagal memverifikasi batch");
     });
 };

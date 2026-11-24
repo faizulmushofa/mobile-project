@@ -26,14 +26,22 @@ export default function LoginScreen() {
   const [emailTouched, setEmailTouched] = useState(false);
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier.trim());
 
+  const showAlert = (title: string, message: string) => {
+    if (Platform.OS === "web") {
+      alert(`${title}\n${message}`);
+    } else {
+      Alert.alert(title, message);
+    }
+  };
+
   const handleLoginSubmit = async () => {
     setEmailTouched(true);
     if (!identifier.trim() || !emailValid) {
-      Alert.alert("Perhatian", emailError);
+      showAlert("Perhatian", emailError);
       return;
     }
     if (!password) {
-      Alert.alert("Perhatian", "Silakan masukkan kata sandi.");
+      showAlert("Perhatian", "Silakan masukkan kata sandi.");
       return;
     }
 
@@ -41,9 +49,9 @@ export default function LoginScreen() {
     if (res.success) {
       router.replace("/home");
     } else {
-      Alert.alert(
+      showAlert(
         "Gagal Masuk",
-        res.message || "Email atau kata sandi tidak cocok.",
+        res.message || "Email atau kata sandi tidak cocok."
       );
     }
   };
@@ -59,7 +67,6 @@ export default function LoginScreen() {
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <StatusBar style="dark" />
 
-      {/* Ambient background decoration */}
       <View style={styles.ambientTopLeft} />
       <View style={styles.ambientTopRight} />
 
@@ -72,7 +79,6 @@ export default function LoginScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header & Brand Identity */}
           <View style={styles.headerSection}>
             <View style={styles.logoBadgeContainer}>
               <Image
@@ -81,7 +87,7 @@ export default function LoginScreen() {
                 }}
                 style={styles.logoImage}
                 contentFit="contain"
-              ></Image>
+              />
             </View>
 
             <Text style={styles.brandTitle}>Jejak Kopi</Text>
@@ -89,9 +95,8 @@ export default function LoginScreen() {
               Catat setiap langkah, buktikan kualitas kopimu.
             </Text>
           </View>
-          {/* Primary Login Card */}
+
           <View style={styles.card}>
-            {/* Field 1: Email / Nomor HP */}
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Email</Text>
               <View style={styles.inputContainer}>
@@ -106,7 +111,7 @@ export default function LoginScreen() {
                   placeholder="example@gmail.com"
                   placeholderTextColor="#737686"
                   value={identifier}
-                  onChangeText={setIdentifier}
+                  onChangeText={(text) => setIdentifier(text.trim())}
                   autoCapitalize="none"
                   keyboardType="email-address"
                   autoCorrect={false}
@@ -117,13 +122,17 @@ export default function LoginScreen() {
               )}
             </View>
 
-            {/* Field 2: Password */}
             <View style={styles.inputGroup}>
               <View style={styles.labelRow}>
                 <Text style={styles.inputLabel}>Kata Sandi</Text>
                 <TouchableOpacity
                   activeOpacity={0.7}
-                  onPress={() => Alert.alert("Akun Uji Coba (Dummy)")}
+                  onPress={() =>
+                    showAlert(
+                      "Lupa Kata Sandi",
+                      "Silakan hubungi administrator atau lakukan reset sandi melalui dasbor Supabase."
+                    )
+                  }
                 >
                   <Text style={styles.forgotPasswordText}>
                     Lupa kata sandi?
@@ -160,7 +169,6 @@ export default function LoginScreen() {
               </View>
             </View>
 
-            {/* Primary Action CTA */}
             <TouchableOpacity
               style={[styles.primaryButton, loading && { opacity: 0.7 }]}
               activeOpacity={0.85}
@@ -182,7 +190,6 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Footer Assistance */}
           <View style={styles.footerSection}>
             <Text style={styles.footerText}>
               Belum punya akun?{" "}
