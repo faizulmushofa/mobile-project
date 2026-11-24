@@ -55,15 +55,11 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
-  // Main Content & Scroll
   mainScrollContent: {
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 28,
   },
-
-  // Hero Card / Scanner Trigger Section
   heroCard: {
     backgroundColor: '#ffffff',
     borderRadius: 20,
@@ -126,8 +122,6 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 0.2,
   },
-
-  // Result Section
   resultContainerSection: {
     width: '100%',
   },
@@ -155,8 +149,6 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#ef4444',
   },
-
-  // Card Hasil Scan Aktif
   resultCard: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
@@ -251,8 +243,6 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
-
-  // Wadah Placeholder / Empty State
   emptyResultCard: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
@@ -286,8 +276,6 @@ export const styles = StyleSheet.create({
     lineHeight: 18,
     maxWidth: 260,
   },
-
-  // MODAL KAMERA FULL SCREEN STYLES
   cameraModalContainer: {
     flex: 1,
     backgroundColor: '#000000',
@@ -334,8 +322,6 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(245, 158, 11, 0.85)',
     borderColor: '#fbbf24',
   },
-
-  // Viewfinder Frame
   targetFrame: {
     width: width * 0.68,
     height: width * 0.68,
@@ -379,8 +365,6 @@ export const styles = StyleSheet.create({
     borderRightWidth: 4,
     borderBottomRightRadius: 8,
   },
-
-  // Instruction Pill
   instructionPill: {
     backgroundColor: 'rgba(15, 23, 42, 0.8)',
     paddingHorizontal: 20,
@@ -398,8 +382,6 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
-
-  // Bottom Nav
   bottomNav: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -451,8 +433,6 @@ export const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 6,
   },
-
-  // Verification Pop-up Modal Styles
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(15, 23, 42, 0.65)',
@@ -673,8 +653,6 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-
-  // Loading Overlay
   loadingOverlay: {
     ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(15, 23, 42, 0.7)',
@@ -707,8 +685,6 @@ export const styles = StyleSheet.create({
     marginTop: 4,
     textAlign: 'center',
   },
-
-  // Test Barcode Guide Section / Tab
   testSectionBanner: {
     backgroundColor: '#eff6ff',
     borderRadius: 16,
@@ -744,8 +720,6 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
   },
-
-  // Test Modal Styles
   testModalScroll: {
     maxHeight: 520,
     paddingHorizontal: 16,
@@ -814,8 +788,6 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
   },
-
-  // Paspor Kopi (Opsi 2 - Traceability Card)
   passportCard: {
     backgroundColor: '#ffffff',
     borderRadius: 20,

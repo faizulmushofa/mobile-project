@@ -1,6 +1,5 @@
-import { COFFEE_BATCHES } from "@/dummy-data/coffee-batches";
 import { useAuth } from "@/hooks/use-auth";
-import { verifyBatchCode } from "@/services/batch-service";
+import { fetchAllBatches, verifyBatchCode } from "@/services/batch-service";
 import { styles } from "@/styles/home.styles";
 import { CoffeeBatch } from "@/types/coffee";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -12,12 +11,13 @@ import {
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   Linking,
   Modal,
+  Platform,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -35,22 +35,40 @@ export default function HomeScreen() {
   const [activeTab, setActiveTab] = useState<
     "beranda" | "batch" | "pesanan" | "profil"
   >("beranda");
-  const { logout } = useAuth();
-
-  // Kamera & Barcode Scanner State
+  const { logout, user } = useAuth();
   const [permission, requestPermission] = useCameraPermissions();
   const [isCameraOpen, setIsCameraOpen] = useState<boolean>(false);
   const [scanned, setScanned] = useState<boolean>(false);
   const [scannedResult, setScannedResult] = useState<ScannedData | null>(null);
   const [enableTorch, setEnableTorch] = useState<boolean>(false);
-
-  // State Verifikasi Asynchronous (Materi Modul 3)
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
   const [verifiedBatch, setVerifiedBatch] = useState<CoffeeBatch | null>(null);
   const [verificationError, setVerificationError] = useState<string | null>(null);
   const [showVerificationModal, setShowVerificationModal] = useState<boolean>(false);
+  const [batches, setBatches] = useState<CoffeeBatch[]>([]);
+  const [batchLoading, setBatchLoading] = useState<boolean>(false);
 
-  // Buka kamera dengan validasi izin
+  useEffect(() => {
+    let isMounted = true;
+    if (activeTab === "batch") {
+      fetchAllBatches()
+        .then((data) => {
+          if (isMounted) {
+            setBatches(data);
+            setBatchLoading(false);
+          }
+        })
+        .catch(() => {
+          if (isMounted) {
+            setBatches([]);
+            setBatchLoading(false);
+          }
+        });
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [activeTab]);
   const handleOpenScanner = async () => {
     if (!permission) {
       Alert.alert("Memuat", "Sedang memeriksa izin kamera...");
@@ -94,18 +112,12 @@ export default function HomeScreen() {
       Alert.alert("Error", "Gagal meminta izin akses kamera.");
     }
   };
-
-  // Tutup kamera secara manual oleh pengguna
   const handleCloseCamera = () => {
     setIsCameraOpen(false);
     setEnableTorch(false);
   };
 
-  /**
-   * Menjalankan Verifikasi Asynchronous Kode Batch Kopi
-   * Menggunakan pola Promise .then() & .catch() sesuai materi Modul 3
-   */
-  const handleRunVerification = (codeToVerify: string) => {
+    const handleRunVerification = (codeToVerify: string) => {
     setIsVerifying(true);
 
     const now = new Date();
@@ -148,27 +160,38 @@ export default function HomeScreen() {
   };
 
   const handleLogout = () => {
-    Alert.alert("Konfirmasi Keluar", "Apakah Anda yakin ingin keluar?", [
-      { text: "Batal", style: "cancel" },
-      {
-        text: "Keluar",
-        style: "destructive",
-        onPress: async () => {
-          if (logout) await logout();
-          if (router.canDismiss()) {
-            router.dismissAll();
-          }
-          router.replace("/");
+    const doLogout = async () => {
+      try {
+        if (logout) await logout();
+      } catch (err) {
+        console.warn(err);
+      }
+      if (router.canDismiss()) {
+        router.dismissAll();
+      }
+      router.replace("/");
+    };
+
+    if (Platform.OS === "web") {
+      const confirmed = typeof window !== "undefined" ? window.confirm("Apakah Anda yakin ingin keluar?") : true;
+      if (confirmed) {
+        doLogout();
+      }
+    } else {
+      Alert.alert("Konfirmasi Keluar", "Apakah Anda yakin ingin keluar?", [
+        { text: "Batal", style: "cancel" },
+        {
+          text: "Keluar",
+          style: "destructive",
+          onPress: doLogout,
         },
-      },
-    ]);
+      ]);
+    }
   };
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <StatusBar style="dark" />
-
-      {/* Top Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Image
@@ -200,15 +223,12 @@ export default function HomeScreen() {
           <MaterialIcons name="person" size={20} color="#ffffff" />
         </TouchableOpacity>
       </View>
-
-      {/* Main Content Area */}
       <ScrollView
         contentContainerStyle={styles.mainScrollContent}
         showsVerticalScrollIndicator={false}
       >
         {activeTab === "beranda" && (
           <View>
-            {/* Hero Card / Scanner Trigger Section */}
             <View style={styles.heroCard}>
               <View style={styles.heroIconCircle}>
                 <MaterialIcons name="qr-code-scanner" size={40} color="#2563eb" />
@@ -233,9 +253,24 @@ export default function HomeScreen() {
 
         {activeTab === "batch" && (
           <View>
-            {COFFEE_BATCHES.map((batch) => (
+            {batchLoading ? (
+              <View style={styles.emptyResultCard}>
+                <ActivityIndicator size="large" color="#2563eb" />
+                <Text style={styles.emptyResultTitle}>Memuat Batch...</Text>
+              </View>
+            ) : batches.length === 0 ? (
+              <View style={styles.emptyResultCard}>
+                <View style={styles.emptyResultIconWrapper}>
+                  <MaterialIcons name="inventory-2" size={36} color="#94a3b8" />
+                </View>
+                <Text style={styles.emptyResultTitle}>Belum Ada Batch</Text>
+                <Text style={styles.emptyResultText}>
+                  Data batch kopi belum tersedia di server.
+                </Text>
+              </View>
+            ) : (
+            batches.map((batch) => (
               <View key={batch.id} style={styles.passportCard}>
-                {/* Header: Batch Code & Status Badge */}
                 <View style={styles.passportHeader}>
                   <View style={styles.passportBatchBadge}>
                     <Text style={styles.passportBatchBadgeText} numberOfLines={1}>
@@ -249,11 +284,7 @@ export default function HomeScreen() {
                     </Text>
                   </View>
                 </View>
-
-                {/* Nama Kopi */}
                 <Text style={styles.passportCoffeeTitle}>{batch.coffeeName}</Text>
-
-                {/* Grid Paspor Info */}
                 <View style={styles.passportGrid}>
                   <View style={styles.passportRow}>
                     <View style={styles.passportLabelGroup}>
@@ -307,7 +338,7 @@ export default function HomeScreen() {
                   </Text>
                 </TouchableOpacity>
               </View>
-            ))}
+            )))}
           </View>
         )}
 
@@ -334,9 +365,34 @@ export default function HomeScreen() {
             </View>
             <View style={styles.resultDataBox}>
               <Text style={styles.resultDataLabel}>Nama Pengguna</Text>
-              <Text style={styles.resultDataText}>Pengguna Jejak Kopi</Text>
+              <Text style={styles.resultDataText}>
+                {user?.user_metadata?.full_name ||
+                  user?.email?.split("@")[0] ||
+                  "Pengguna Jejak Kopi"}
+              </Text>
               <Text style={[styles.resultDataLabel, { marginTop: 10 }]}>Email</Text>
-              <Text style={styles.resultDataText}>wisnu@jejakkopi.id</Text>
+              <Text style={styles.resultDataText}>{user?.email || "-"}</Text>
+              {user?.user_metadata?.location ? (
+                <>
+                  <Text style={[styles.resultDataLabel, { marginTop: 10 }]}>
+                    Asal Wilayah
+                  </Text>
+                  <Text style={styles.resultDataText}>
+                    {user.user_metadata.location}
+                  </Text>
+                </>
+              ) : null}
+              <Text style={[styles.resultDataLabel, { marginTop: 10 }]}>
+                ID Pengguna (Supabase UID)
+              </Text>
+              <Text
+                style={[
+                  styles.resultDataText,
+                  { fontSize: 11, color: "#64748b" },
+                ]}
+              >
+                {user?.id || "-"}
+              </Text>
             </View>
             <TouchableOpacity
               style={[styles.rescanButton, { backgroundColor: "#ef4444" }]}
@@ -349,10 +405,6 @@ export default function HomeScreen() {
           </View>
         )}
       </ScrollView>
-
-      {/* ======================================================== */}
-      {/* 1. MODAL VERIFIKASI KEASLIAN KOPI (POP-UP HASIL ASLI/PALSU) */}
-      {/* ======================================================== */}
       <Modal
         visible={showVerificationModal}
         transparent={true}
@@ -362,7 +414,6 @@ export default function HomeScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.verificationCard}>
             {verifiedBatch ? (
-              // KONDISI SUKSES: PRODUK ASLI & TERVERIFIKASI
               <>
                 <View
                   style={[
@@ -389,8 +440,6 @@ export default function HomeScreen() {
                   <Text style={styles.productBatchCode}>
                     Kode Batch: {verifiedBatch.batchCode}
                   </Text>
-
-                  {/* Grid Detail Info Kopi */}
                   <View style={styles.detailRowsContainer}>
                     <View style={styles.infoRow}>
                       <View style={styles.infoLabelContainer}>
@@ -454,8 +503,6 @@ export default function HomeScreen() {
                       </Text>
                     </View>
                   </View>
-
-                  {/* Flavor Notes Chips */}
                   <Text style={styles.notesTitle}>Profil Rasa (Cupping Notes)</Text>
                   <View style={styles.notesChipsRow}>
                     {verifiedBatch.flavorNotes.map((note, index) => (
@@ -464,8 +511,6 @@ export default function HomeScreen() {
                       </View>
                     ))}
                   </View>
-
-                  {/* Action Buttons */}
                   <View style={[styles.modalActionButtons, { marginBottom: 16 }]}>
                     <TouchableOpacity
                       style={styles.modalBtnSecondary}
@@ -489,7 +534,6 @@ export default function HomeScreen() {
                 </ScrollView>
               </>
             ) : (
-              // KONDISI GAGAL: PRODUK TIDAK TERDAFTAR / PALSU
               <>
                 <View
                   style={[
@@ -553,10 +597,6 @@ export default function HomeScreen() {
           </View>
         </View>
       </Modal>
-
-      {/* ======================================================== */}
-      {/* 2. MODAL FULLSCREEN KAMERA PEMINDAI */}
-      {/* ======================================================== */}
       <Modal
         visible={isCameraOpen}
         animationType="slide"
@@ -636,10 +676,6 @@ export default function HomeScreen() {
           </View>
         </SafeAreaView>
       </Modal>
-
-      {/* ======================================================== */}
-      {/* 4. LOADING OVERLAY ASYNCHRONOUS (MEMPROSES API) */}
-      {/* ======================================================== */}
       {isVerifying && (
         <View style={styles.loadingOverlay}>
           <View style={styles.loadingContainer}>
@@ -651,10 +687,6 @@ export default function HomeScreen() {
           </View>
         </View>
       )}
-
-      {/* ======================================================== */}
-      {/* 5. BOTTOM NAVIGATION BAR */}
-      {/* ======================================================== */}
       <View style={styles.bottomNav}>
         <TouchableOpacity
           style={styles.navItem}
@@ -678,7 +710,10 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           style={styles.navItem}
-          onPress={() => setActiveTab("batch")}
+          onPress={() => {
+            setBatchLoading(true);
+            setActiveTab("batch");
+          }}
           activeOpacity={0.7}
         >
           <MaterialIcons
@@ -695,8 +730,6 @@ export default function HomeScreen() {
             Batch
           </Text>
         </TouchableOpacity>
-
-        {/* Center Floating QR Scan Action Button */}
         <View style={styles.qrButtonWrapper}>
           <TouchableOpacity
             style={styles.qrButton}

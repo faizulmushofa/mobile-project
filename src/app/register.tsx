@@ -28,25 +28,33 @@ export default function RegisterScreen() {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const { register, loading } = useAuth();
 
+  const showAlert = (title: string, message: string) => {
+    if (Platform.OS === "web") {
+      alert(`${title}\n${message}`);
+    } else {
+      Alert.alert(title, message);
+    }
+  };
+
   const handleRegisterSubmit = async () => {
     if (!fullName.trim()) {
-      Alert.alert("Perhatian", "Nama lengkap wajib diisi.");
+      showAlert("Perhatian", "Nama lengkap wajib diisi.");
       return;
     }
     if (!email.trim()) {
-      Alert.alert("Perhatian", "Email wajib diisi.");
+      showAlert("Perhatian", "Email wajib diisi.");
       return;
     }
     if (!email.includes("@") || !email.includes(".")) {
-      Alert.alert("Perhatian", "Format email tidak valid.");
+      showAlert("Perhatian", "Format email tidak valid.");
       return;
     }
-    if (!password || password.length < 8) {
-      Alert.alert("Perhatian", "Kata sandi minimal 8 karakter.");
+    if (!password || password.length < 6) {
+      showAlert("Perhatian", "Kata sandi minimal 6 karakter.");
       return;
     }
     if (!agreeTerms) {
-      Alert.alert(
+      showAlert(
         "Perhatian",
         "Harap setujui Syarat & Ketentuan serta Kebijakan Privasi.",
       );
@@ -56,21 +64,29 @@ export default function RegisterScreen() {
     const res = await register(fullName, email, password, {
       phone: waPhone,
       location,
+      role: "petani",
     });
 
     if (res.success) {
-      Alert.alert(
-        "Pendaftaran Berhasil",
-        `Akun ${fullName} (${email}) berhasil didaftarkan ke data dummy! Silakan masuk dengan akun ini.`,
-        [
-          {
-            text: "Masuk Sekarang",
-            onPress: () => router.replace("/"),
-          },
-        ],
-      );
+      if (Platform.OS === "web") {
+        alert(
+          `Pendaftaran Berhasil!\nAkun ${fullName.trim()} (${email.trim()}) berhasil didaftarkan ke Supabase. Silakan masuk dengan akun Anda.`
+        );
+        router.replace("/");
+      } else {
+        Alert.alert(
+          "Pendaftaran Berhasil",
+          `Akun ${fullName.trim()} (${email.trim()}) berhasil didaftarkan ke Supabase! Silakan masuk dengan akun Anda.`,
+          [
+            {
+              text: "Masuk Sekarang",
+              onPress: () => router.replace("/"),
+            },
+          ],
+        );
+      }
     } else {
-      Alert.alert(
+      showAlert(
         "Gagal Mendaftar",
         res.message || "Terjadi kesalahan saat pendaftaran.",
       );
@@ -89,7 +105,6 @@ export default function RegisterScreen() {
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <StatusBar style="dark" />
 
-      {/* Ambient background decoration */}
       <View style={styles.ambientTopGlow} />
 
       <KeyboardAvoidingView
@@ -101,7 +116,6 @@ export default function RegisterScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header Navigation */}
           <View style={styles.navHeader}>
             <TouchableOpacity
               style={styles.backButton}
@@ -113,7 +127,6 @@ export default function RegisterScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Brand Intro & Header */}
           <View style={styles.brandSection}>
             <View style={styles.logoContainer}>
               <Image
@@ -134,9 +147,7 @@ export default function RegisterScreen() {
             </Text>
           </View>
 
-          {/* Registration Form Card */}
           <View style={styles.card}>
-            {/* Field 1: Nama Lengkap */}
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Nama Lengkap</Text>
               <View style={styles.inputContainer}>
@@ -156,7 +167,6 @@ export default function RegisterScreen() {
               </View>
             </View>
 
-            {/* Field 2: Email */}
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Email</Text>
               <View style={styles.inputContainer}>
@@ -171,14 +181,14 @@ export default function RegisterScreen() {
                   placeholder="contoh@gmail.com"
                   placeholderTextColor="#737686"
                   value={email}
-                  onChangeText={setEmail}
+                  onChangeText={(text) => setEmail(text.trim())}
                   autoCapitalize="none"
                   keyboardType="email-address"
+                  autoCorrect={false}
                 />
               </View>
             </View>
 
-            {/* Field 2: Nomor WhatsApp / HP */}
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Nomor Telepon</Text>
               <View style={styles.inputContainer}>
@@ -199,7 +209,6 @@ export default function RegisterScreen() {
               </View>
             </View>
 
-            {/* Field 4: Asal Wilayah / Kebun */}
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Asal Wilayah</Text>
               <View style={styles.inputContainer}>
@@ -219,7 +228,6 @@ export default function RegisterScreen() {
               </View>
             </View>
 
-            {/* Field 5: Buat Kata Sandi */}
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Buat Kata Sandi</Text>
               <View style={styles.inputContainer}>
@@ -231,7 +239,7 @@ export default function RegisterScreen() {
                 />
                 <TextInput
                   style={styles.textInput}
-                  placeholder="Minimal 8 karakter"
+                  placeholder="Minimal 6 karakter"
                   placeholderTextColor="#737686"
                   value={password}
                   onChangeText={setPassword}
@@ -251,7 +259,6 @@ export default function RegisterScreen() {
               </View>
             </View>
 
-            {/* Checkbox Persetujuan */}
             <TouchableOpacity
               style={styles.checkboxContainer}
               onPress={() => setAgreeTerms(!agreeTerms)}
@@ -275,7 +282,6 @@ export default function RegisterScreen() {
               </Text>
             </TouchableOpacity>
 
-            {/* Submit Action Button */}
             <TouchableOpacity
               style={[styles.submitButton, loading && { opacity: 0.7 }]}
               activeOpacity={0.85}
@@ -297,7 +303,6 @@ export default function RegisterScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Footer Link to Login */}
           <View style={styles.footerSection}>
             <Text style={styles.footerText}>Sudah punya akun?</Text>
             <TouchableOpacity onPress={handleBack} activeOpacity={0.7}>
